@@ -4,9 +4,10 @@ class Player {
   int ammo;
 
   Player () {
+    playerSpeed = 1;
   }
 
-  void display() {
+  void display(){
     x = mouseX;
     y = mouseY;
     w = width/30;
@@ -16,5 +17,7 @@ class Player {
     line(x - w/2, y, x + w/2, y);
     line(x, y - h/2, x, y + h/2);
   }
+  
+  
 }
 
