@@ -2,8 +2,9 @@ class Player {
   float cw, ch;
   PImage HUD;
   int t;
-  boolean shoot;
-  
+  boolean shoot, old;
+  ArrayList bullets;
+
 
 
 
@@ -12,6 +13,7 @@ class Player {
     ch = tch;
 
     HUD = loadImage("HUD.png");
+    bullets = new ArrayList();
   }
 
 
@@ -44,6 +46,17 @@ class Player {
       if (millis() - t > 50) {
         shoot = false;
         playerShot = false;
+      }
+    }
+  }
+
+  void shoot2() {
+    if (mousePressed == true && mouseButton == LEFT) {
+      bullets.add(new Bullet("player"));
+      for (int i=0; i<bullets.size(); i++) {
+        Bullet shots = (Bullet) bullets.get(i);
+        shots.shot = true;
+        shots.display();
       }
     }
   }

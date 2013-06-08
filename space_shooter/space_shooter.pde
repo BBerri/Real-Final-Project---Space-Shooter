@@ -15,6 +15,7 @@ Player me;
 loadingScreen loading;
 Enemy lobster;
 Starfield stars;
+Bullet test;
 
 
 
@@ -29,7 +30,7 @@ void setup() {
   lobsterPic = loadImage("lobster.png");
   lobster = new Enemy(lobsterPic, 3, true);
   stars = new Starfield();
-  
+  test = new Bullet("player");
 }
 
 void mouseReleased() {        //true if mouse is released
@@ -44,32 +45,35 @@ void draw() {
 
 
   if (STATE == "title") {
-    
+
     //////title screen//////
     mainMenu.display();
   }
 
   if (STATE == "game") {
-    
+
     ///////stars//////
     stars.display(100);
-    
+
     //////lobster//////
     lobster.display();
     lobster.approach();
     lobster.hit();
-    
+
+    ///////////test///////////////
+    test.display();
+
     ///player ship/////
-    me.shoot();
+    me.shoot2();
     me.display();
   }
 
   if (STATE == "starting") {
-    
+
     /////loading screen//////
     loading.display();
   }
-  
+
   ////////reset click values////////
   leftClick = false;
   rightClick = false;
