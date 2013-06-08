@@ -1,23 +1,51 @@
 class Player {
+  float cw, ch;
+  PImage HUD;
+  int t;
+  boolean shoot;
+  
 
-  float x, y, w, h;
-  int ammo;
 
-  Player () {
-    playerSpeed = 1;
+
+  Player(float tcw, float tch) {
+    cw = tcw;
+    ch = tch;
+
+    HUD = loadImage("HUD.png");
   }
 
-  void display(){
-    x = mouseX;
-    y = mouseY;
-    w = width/30;
-    h = height/20;
-    stroke(255, 0, 0);
+
+  void display() {
+
+    /////draw the HUD///////
+    image(HUD, HUDx, HUDy, width, height);
+
+
+    //////draw the crosshair////////
     strokeWeight(3);
-    line(x - w/2, y, x + w/2, y);
-    line(x, y - h/2, x, y + h/2);
+    stroke(255, 0, 0);
+    line(mouseX-cw/2, mouseY, mouseX+cw/2, mouseY);
+    line(mouseX, mouseY+ch/2, mouseX, mouseY-ch/2);
   }
-  
-  
+
+  void shoot() {
+    if (leftClick == true) {
+      shoot = true;
+      playerShot = true;
+      t = millis();
+    }
+    if (shoot == true) {
+      if (millis() - t < 50) {
+        stroke(255, 0, 0);
+        strokeWeight(5);
+        line (2*width/8, 7*height/8, mouseX, mouseY);
+        line (6*width/8, 7*height/8, mouseX, mouseY);
+      }
+      if (millis() - t > 50) {
+        shoot = false;
+        playerShot = false;
+      }
+    }
+  }
 }
 
