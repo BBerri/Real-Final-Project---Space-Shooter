@@ -4,7 +4,7 @@ PImage lobsterPic;
 int iWidth = 1280;
 int iHeight = 720;
 int pw, ph;
-public String STATE = "game";
+public String STATE = "title";
 public boolean resize;
 public boolean leftClick, rightClick;
 public boolean space = true;
