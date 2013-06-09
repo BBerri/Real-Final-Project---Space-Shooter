@@ -1,18 +1,18 @@
 class Enemy {
-  float x, y, w, h, rw, rh, xspeed, yspeed, zspeed, zacc, zacc2;
-  boolean space, left, right, up, down, hit, shake, alive, targeted, canShoot, shoot;
+  float x, y, w, h, rw, rh, xspeed, yspeed, zspeed, zacc, zacc2, damage;
+  boolean left, right, up, down, hit, shake, alive, targeted, canShoot, shoot;
   PImage pic;
   int frames, health, t;
 
-  Enemy(PImage tpic, int thealth, boolean tcanShoot) {
+  Enemy(PImage tpic, int thealth, float tw, float th, boolean tcanShoot, float tdamage) {
+    damage = tdamage;
     health = thealth;
     pic = tpic;
     canShoot = tcanShoot;
-    rw = 100;
-    rh = 100;
+    rw = tw;
+    rh = th;
     w = 0;
     h = 0;
-    space = true;
     x = random(width/2-100, width/2 + 100);
     //y = random(height/2 - 50, height/2 + 50);
     y = random(height/2 + 50, height/2 + 50);
@@ -30,13 +30,17 @@ class Enemy {
       alive = false;
     }
 
+    pushMatrix();
+    translate(x, y);
+    rotate(degrees(pdegrees));
     if (alive == true) {
       fill(255);
       noStroke();
-      rectMode(CENTER);
-      image(pic, x, y, w, h);
-      rectMode(CORNER);
+      imageMode(CENTER);
+      image(pic, 0, 0, w, h);
+      imageMode(CORNER);
     }
+    popMatrix();
   }
 
 
@@ -79,9 +83,13 @@ class Enemy {
         zspeed += zacc;
         zacc += zacc2;
 
-        if (h < rh || w < rw) {    //if still approaching
-          w+= zspeed;
-          h+= zspeed;
+        if (h < rh/2 || w < rw/2) {    //if still approaching (really far)
+          w+= zspeed*.8;
+          h+= zspeed*.8;
+        }
+        if (h > rh/2 && h < rh || w > rw/2 && w < rw) {    //if still approaching (closer)
+          w+= zspeed*2;
+          h+= zspeed*2;
         }
         if (h >= rh && w >= rw && canShoot == false) {      //if already close and doesnt shoot
           y+=20;
@@ -119,14 +127,22 @@ class Enemy {
 
   void hit() {
     ///////////check for mouse over enemy////////////
-    if (mouseX > x & mouseX < x+w && mouseY > y && mouseY < y+h) {
+    if (mouseX > x-w/2 & mouseX < x+w/2 && mouseY > y-h/2 && mouseY < y+h/2) {
       targeted = true;
     }
 
     //////////////////lower health when hit///////////
-    if (playerShot == true && millis() - t > 50 && targeted == true) {
+    if (playerShot == true && targeted == true) {
       health-=1;
-      t = millis();
+
+      ////flash red/////
+      if (health > 0) {
+        fill(255, 0, 0);
+        noStroke();
+        rectMode(CENTER);
+        rect(x, y, w, h);
+        rectMode(CORNER);
+      }
     }
   }
 
@@ -136,12 +152,17 @@ class Enemy {
       shoot = true;
       shake = true;
       t = millis();
+      pHealth -= damage;
     }
     if (shoot == true) {
       if (millis() - t < 50) {
         stroke(0, 0, 255);
         strokeWeight(5);
-        line (x + w/2, y + 7*h/8, width/2, 9*width/10);
+
+        pushMatrix();
+        translate(x, y);
+        line (0, 0, width/2, 9*width/10);
+        popMatrix();
       }
       if (millis() - t > 50) {
         shoot = false;

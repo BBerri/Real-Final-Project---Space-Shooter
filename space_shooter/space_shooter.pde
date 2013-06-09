@@ -1,13 +1,21 @@
+PImage lobsterPic;
+
+////////game variables/////////
 int iWidth = 1280;
 int iHeight = 720;
 int pw, ph;
-PImage lobsterPic;
-
 public String STATE = "game";
-public boolean released, resize, playerShot;
-public float HUDx, HUDy;
-public boolean pLeft, pRight;        //playering moving right or left
+public boolean resize;
 public boolean leftClick, rightClick;
+public boolean space = true;
+
+
+/////////player Variables/////////
+public String pDirection;
+public boolean pShields, playerShot, pLeft, pRight;
+public float HUDx, HUDy, pHealth, pHealthi, pdegrees, pCharge, pChargei;
+
+
 
 Menu menu1;
 titleScreen mainMenu;
@@ -15,7 +23,6 @@ Player me;
 loadingScreen loading;
 Enemy lobster;
 Starfield stars;
-Bullet test;
 
 
 
@@ -25,22 +32,18 @@ void setup() {
   frameRate(60);
 
   mainMenu = new titleScreen();
-  me = new Player(25, 25);
+  me = new Player(25, 25, 1000, 1000);
   loading = new loadingScreen();
   lobsterPic = loadImage("lobster.png");
-  lobster = new Enemy(lobsterPic, 3, true);
+  lobster = new Enemy(lobsterPic, 10, 100, 100, true, 100);
   stars = new Starfield();
-  test = new Bullet("player");
 }
 
-void mouseReleased() {        //true if mouse is released
-  released = true;
-}
 
 void draw() {
   background(0);
 
-  released = false;             //false if not released
+
 
 
 
@@ -60,11 +63,9 @@ void draw() {
     lobster.approach();
     lobster.hit();
 
-    ///////////test///////////////
-    test.display();
 
     ///player ship/////
-    me.shoot2();
+    me.shoot();
     me.display();
   }
 
