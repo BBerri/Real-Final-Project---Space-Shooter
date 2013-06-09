@@ -35,7 +35,7 @@ void setup() {
   me = new Player(25, 25, 1000, 1000);
   loading = new loadingScreen();
   lobsterPic = loadImage("lobster.png");
-  lobster = new Enemy(lobsterPic, 10, 100, 100, true, 100);
+  lobster = new Enemy(lobsterPic, 20, 100, 100, true, 100);
   stars = new Starfield();
 }
 

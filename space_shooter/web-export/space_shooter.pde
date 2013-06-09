@@ -1,62 +1,92 @@
-int iWidth = int(1280);
-int iHeight = int(720);
-public boolean resize;
-public float playerSpeed = .01;
-int pw, ph;              //previous width and height value (use to detect resize)
-PImage HUD;
-float HUDx, HUDy;
+PImage lobsterPic;
 
+////////game variables/////////
+int iWidth = 1280;
+int iHeight = 720;
+int pw, ph;
+public String STATE = "game";
+public boolean resize;
+public boolean leftClick, rightClick;
+public boolean space = true;
+
+
+/////////player Variables/////////
+public String pDirection;
+public boolean pShields, playerShot, pLeft, pRight;
+public float HUDx, HUDy, pHealth, pHealthi, pdegrees, pCharge, pChargei;
+
+
+
+Menu menu1;
+titleScreen mainMenu;
 Player me;
-Enemy testE;
+loadingScreen loading;
+Enemy lobster;
+Starfield stars;
+
 
 
 void setup() {
   BlackBox.init(this);
-  size(1280, 720);
-//  if (frame != null) {
-//    frame.setResizable(true);
-//  }
-  frameRate(120);
-  pw = iWidth;        //initial width
-  ph = iHeight;      //initial height
-  noCursor();
-  HUD = loadImage("HUD.png");
-  HUDx = width;
-  HUDy = height;
-  
-  ///////Declaring me/////////////
-  me = new Player();
-  
-  ///////Declaring testE////////
-  testE = new Enemy();
+  size(iWidth, iHeight);
+  frameRate(60);
 
+  mainMenu = new titleScreen();
+  me = new Player(25, 25, 1000, 1000);
+  loading = new loadingScreen();
+  lobsterPic = loadImage("lobster.png");
+  lobster = new Enemy(lobsterPic, 20, 100, 100, true, 100);
+  stars = new Starfield();
 }
 
 
 void draw() {
   background(0);
-  
-  
-  
-  
-  ////////me's Fuctions//////////
-  me.display();
-  
-  
-  ////////tstE's functions///////
-  testE.display();
-  testE.move();
 
 
-  image(HUD, HUDx - width, HUDy - height, HUDx, HUDy);
-  ////////Check if window was resized///////
-  if (pw != width || ph != height) {
-    resize = true;
-    pw = width;
-    ph = height;
+
+
+
+  if (STATE == "title") {
+
+    //////title screen//////
+    mainMenu.display();
   }
-  else {
-    resize = false;
+
+  if (STATE == "game") {
+
+    ///////stars//////
+    stars.display(100);
+
+    //////lobster//////
+    lobster.display();
+    lobster.approach();
+    lobster.hit();
+
+
+    ///player ship/////
+    me.shoot();
+    me.display();
+  }
+
+  if (STATE == "starting") {
+
+    /////loading screen//////
+    loading.display();
+  }
+
+  ////////reset click values////////
+  leftClick = false;
+  rightClick = false;
+}
+
+
+void mouseClicked() {
+  if (mouseButton == LEFT) {
+    leftClick = true;
+  }
+  if (mouseButton == RIGHT) {
+    rightClick = true;
   }
 }
 
@@ -397,70 +427,172 @@ static class BlackBox {
     public static final int  VK_Y = 89;
     public static final int  VK_Z = 90;
 }
-class Enemy {
-  float x, y, w, h, rw, rh, xspeed, yspeed, zspeed, zacc, zacc2;
-  boolean hit, shake;
-  int frames;
+class Bullet {
+  float r;
+  String type;
+  float x, y, h, w, d, dist, maxDist, shrink, zspeed;
+  boolean shot;
 
-
-  Enemy() {
-    w = 0;
-    h = 0;
-    rw = width/10;
-    rh = height/10;
-    x = width/2;
-    y = height/2;
-    zspeed = .001;
-    zacc = .0005;
-    zacc2 = .000002;
+  Bullet(String ttype, float tx, float ty) {
+    x = tx;
+    y = ty;
+    type = ttype;
+    h = 200;
+    w = 200;
+    d = 200;
   }
 
   void display() {
-    strokeWeight(0);
-    rect(x, y, w, h);
+    /////player bullet///////
+    if (type == "player") {
+      pushMatrix();
+      translate(x, y);
+
+      if (shot == true) {              //if shot, then move
+        if (dist + d/2 < maxDist) {
+          rotate(r);
+          fill(0, 255, 0);
+          noStroke();
+          ellipse(dist, 0, d*1.5, d);
+          zspeed = maxDist/7;
+          dist += zspeed;
+          d = 7 + 200 * ((maxDist-dist)/maxDist) * ((maxDist-dist)/maxDist);
+        }
+      }
+      popMatrix();
+    }
   }
 
-  void move() {
-    approach();
-    shake();
+  void update() {                              //update r value
+    if (shot == false) {
+      r = atan2(mouseY - y, mouseX - x);
+      maxDist = dist(x, y, mouseX, mouseY);
+    }
   }
+
+  void shoot() {
+    shot = true;
+  }
+}
+
+class Enemy {
+  float x, y, w, h, rw, rh, xspeed, yspeed, zspeed, zacc, zacc2, damage;
+  boolean left, right, up, down, hit, shake, alive, targeted, canShoot, shoot;
+  PImage pic;
+  int frames, health, t;
+
+  Enemy(PImage tpic, int thealth, float tw, float th, boolean tcanShoot, float tdamage) {
+    damage = tdamage;
+    health = thealth;
+    pic = tpic;
+    canShoot = tcanShoot;
+    rw = tw;
+    rh = th;
+    w = 0;
+    h = 0;
+    x = random(width/2-100, width/2 + 100);
+    //y = random(height/2 - 50, height/2 + 50);
+    y = random(height/2 + 50, height/2 + 50);
+    zspeed = .001;
+    zacc = .0005;
+    zacc2 = .000008;
+  }
+
+  void display () {
+    //////whether alive or not/////
+    if (health > 0) {
+      alive = true;
+    }
+    else {
+      alive = false;
+    }
+
+    pushMatrix();
+    translate(x, y);
+    rotate(degrees(pdegrees));
+    if (alive == true) {
+      fill(255);
+      noStroke();
+      imageMode(CENTER);
+      image(pic, 0, 0, w, h);
+      imageMode(CORNER);
+    }
+    popMatrix();
+  }
+
+
+
 
   void approach() {
-    if (keyPressed == true && key == 'g'){
-    if (w < rw || h<rh) {
-      zacc += zacc2;
-      zspeed += zacc;
-      w += zspeed;
-      h += zspeed;
-      x -= zspeed/4;
-      y += zspeed/4;
-    }
-    if (w > rw && h>rh && y<height) {
-      w += zspeed*10;
-      h += zspeed*10;
-      y += 10;
-      x -= zspeed;
-      y += zspeed;
-      if (y > height) {
-        hit = true;
-        shake = true;
+    if (alive == true) {
+      shake();
+
+      if (x < width/2) {    //moving right
+        right = true;
+      }
+      if (x > width/2) {    //moving left
+        left = true;
+      }
+      if (y < height/2) {    //moving down
+        down = true;
+      }
+      if (y > height/2) {    //moving up
+        up = true;
+      }
+
+      ///////////space enemy////////////
+      if (space==true) {
+        if (right==true) {
+          xspeed = (dist(x, height/2, width/2, height/2))/1000;    //dist from x to width/2
+        }
+        if (left==true) {
+          xspeed = -(dist(x, height/2, width/2, height/2))/1000;    //dist from x to width/2
+        }
+        if (up == true) {
+          yspeed = -(dist(width/2, y, width/2, height/2))/1000;    //dist from y to height/2
+        }
+        if (down == true) {
+          yspeed = (dist(width/2, y, width/2, height/2))/1000;    //dist from y to height/2
+        }
+
+        x += xspeed;
+        y += yspeed;
+        zspeed += zacc;
+        zacc += zacc2;
+
+        if (h < rh/2 || w < rw/2) {    //if still approaching (really far)
+          w+= zspeed*.8;
+          h+= zspeed*.8;
+        }
+        if (h > rh/2 && h < rh || w > rw/2 && w < rw) {    //if still approaching (closer)
+          w+= zspeed*2;
+          h+= zspeed*2;
+        }
+        if (h >= rh && w >= rw && canShoot == false) {      //if already close and doesnt shoot
+          y+=20;
+          x +=xspeed*20;
+        }
+
+        if (h >= rh && w >= rw && canShoot == true) {    //if close and does shoot
+          shoot();
+        }    
+
+        if (y > height) {
+          shake = true;
+        }
       }
     }
-    if (hit == true) {
-      println("YES");
-      hit = false;
-    }
-    }
   }
+
+
 
   void shake() {
     if (shake == true) {
       if (frameCount - frames < 40) {
-        HUDx = width + random(-2, 2);
-        HUDy = height + random(-2, 2);
-        //println("SHAKE");
+        HUDx = random(-3, 3);
+        HUDy = random(-3, 3);
       }
-      if (frameCount - frames >= 240) {
+      if (frameCount - frames >= 40) {
         shake = false;
       }
     }
@@ -468,29 +600,435 @@ class Enemy {
       frames = frameCount;
     }
   }
+
+
+  void hit() {
+    ///////////check for mouse over enemy////////////
+    if (mouseX > x-w/2 & mouseX < x+w/2 && mouseY > y-h/2 && mouseY < y+h/2) {
+      targeted = true;
+    }
+
+    //////////////////lower health when hit///////////
+    if (playerShot == true && targeted == true) {
+      health-=1;
+
+      ////flash red/////
+      if (health > 0) {
+        fill(255, 0, 0);
+        noStroke();
+        rectMode(CENTER);
+        rect(x, y, w, h);
+        rectMode(CORNER);
+      }
+    }
+  }
+
+
+  void shoot() {
+    if (millis() - t > 1000) {
+      shoot = true;
+      shake = true;
+      t = millis();
+      pHealth -= damage;
+    }
+    if (shoot == true) {
+      if (millis() - t < 50) {
+        stroke(0, 0, 255);
+        strokeWeight(5);
+
+        pushMatrix();
+        translate(x, y);
+        line (0, 0, width/2, 9*width/10);
+        popMatrix();
+      }
+      if (millis() - t > 50) {
+        shoot = false;
+      }
+    }
+  }
+}
+
+class Menu {
+  float x, y, w, h;
+  int items, current, t;
+  color boxColor, textColor, selectedColor;
+
+  Option[] options;
+
+  Menu(float tx, float ty, float tw, float th, int titems, color tboxColor, color ttextColor, color tselectedColor) {
+    x = tx;
+    y = ty;
+    w = tw;
+    h = th;     
+    boxColor = tboxColor;
+    textColor = ttextColor;
+    selectedColor = tselectedColor;
+    items = titems;
+
+    /////array of options//////////
+    options = new Option[items];
+    for (int i=0; i<items; i++) {
+      options[i] = new Option(boxColor, textColor, selectedColor);
+    }
+  }
+
+  void display() {
+
+
+    for (int i=0; i<items; i++) {
+      options[i].display(x, y + ((h/items)) * i, w, h/items);
+      //line(x, y + ((h/items)) * i, x + w, y + ((h/items) * i));      //dividers
+      if (options[i].chosen == true) {
+      }
+    }
+  }
+}
+
+
+
+///////////////////The rectangle, text, and selected boolean////////////////
+class Option {
+  float x, y, w, h;
+  boolean selected, chosen;
+  String label;
+  color boxColor, textColor, selectedColor;
+  int t;
+
+  /////////user will input color of boxes/selected & unselected text//////
+  Option(color tboxColor, color ttextColor, color tselectedColor) {
+    boxColor = tboxColor;
+    textColor = ttextColor;
+    selectedColor = tselectedColor;
+  }
+
+  //////show the rectangle and text/////////////
+  void display(float tx, float ty, float tw, float th) {
+    select();
+    chosen();
+
+    x = tx;
+    y = ty;
+    w = tw;
+    h = th;
+
+    fill(boxColor);
+    strokeWeight(2);
+    rect(x, y, w, h);          //box
+
+    if (selected==true) {
+      fill(selectedColor);        //if selected
+    } 
+    else {
+      fill(textColor);        //not selected
+    }
+    textSize(40);
+    text(label, x, y+(h*.9));          //text
+  }
+
+
+  ///////check if highlighted///////
+  void select() {
+    if (mouseX > x && mouseX < x+w && mouseY > y && mouseY < y+h) {
+      selected=true;
+    }
+    else{
+      selected=false;
+    }
+  }
+  
+  ///////check if clicked on////////
+  void chosen() {
+    if (selected==true && mousePressed==true && mouseButton==LEFT && millis()-t > 200) {
+      chosen = true;
+      t = millis();
+    }
+    else {
+      chosen = false;
+    }
+  }
 }
 
 class Player {
+  float cw, ch;
+  PImage HUD;
+  int t, side;
+  boolean shoot, old;
+  ArrayList bullets;
 
-  float x, y, w, h;
-  int ammo;
 
-  Player () {
-    playerSpeed = 1;
+
+
+  Player(float tcw, float tch, float tpHealth, float tpCharge) {
+    pCharge = tpCharge;
+    pChargei = pCharge;
+    pHealth = tpHealth;
+    pHealthi = pHealth;
+    cw = tcw;
+    ch = tch;
+
+    HUD = loadImage("HUD.png");
+    bullets = new ArrayList();
   }
 
-  void display(){
-    x = mouseX;
-    y = mouseY;
-    w = width/30;
-    h = height/20;
-    stroke(255, 0, 0);
+
+  void display() {
+    move();
+
+    //////display bullets////////
+    for (int i=0; i<bullets.size(); i++) {
+      Bullet shots = (Bullet) bullets.get(i);
+      shots.display();
+    }
+
+    /////////draw shields//////
+    shields();
+
+    /////draw the HUD///////
+    image(HUD, HUDx, HUDy, width, height);
+
+
+    //////draw the crosshair////////
     strokeWeight(3);
-    line(x - w/2, y, x + w/2, y);
-    line(x, y - h/2, x, y + h/2);
+    stroke(255, 0, 0);
+    line(mouseX-cw/2, mouseY, mouseX+cw/2, mouseY);
+    line(mouseX, mouseY+ch/2, mouseX, mouseY-ch/2);
+
+    ////////////draw health////////////
+    dhealth();
+
+    ////////////draw charge////////////
+    dcharge();
+  }
+
+
+
+  void shoot() {
+    ///////shoot bullets/////////
+    playerShot = false;
+
+    if (mousePressed == true && mouseButton == LEFT && millis()-t > 300) {
+      side++;    //change side
+      playerShot = true;
+      pCharge -= 80;
+
+      //////left shot////
+      if (side == 1) {
+        bullets.add(new Bullet("player", 2*width/8, height));
+      }
+
+      /////right shot/////
+      if (side == 2) {
+        bullets.add(new Bullet("player", 6*width/8, height));
+      }
+
+      /////show shots/////
+      for (int i=0; i<bullets.size(); i++) {
+        Bullet shots = (Bullet) bullets.get(i);
+        shots.update();
+        shots.shoot();
+      }
+
+      ////reset values/////
+      t = millis();
+      if (side == 2) {
+        side = 0;
+      }
+    }
+    //////add to charge/////
+    if (pCharge < pChargei) {
+      pCharge += 2;
+    }
+  }
+
+  void move() {
+    if (keyPressed == true) {
+
+      if (key == 'a' || key == 'A') {
+        pDirection = "left";
+      }
+      if (key == 'd' || key == 'D') {
+        pDirection = "right";
+      }
+    }
+    else {
+      pDirection = "none";
+    }
+
+    //    if (space == true) {
+    //      if (pDirection == "right") {
+    //        if (pDegrees < 50) {
+    //          pDegrees +=.25;
+    //        }
+    //      }
+    //      if (pDirection == "left") {
+    //      }
+    //    }
+  }
+
+
+  void shields() {
+    if (keyPressed == true) {
+      if (key == ' ') {
+        pShields = true;
+      }
+    }
+
+    if (pShields == true) {
+      fill(0, 255, 0, 60);
+      rect(0, 0, width, height);
+    }
+  }
+
+  void dhealth() {
+    pushMatrix();
+    translate(width * .055, height * .2);
+    rotate(radians(-.5));
+
+    ////red bar//////
+    fill(255, 0, 0);
+    stroke(0);
+    strokeWeight(4);
+    rect(HUDx + 0, HUDy + 0, 150, 50);
+
+    ////green bar////
+    if (pHealth > 0) {
+      fill(0, 255, 0);
+      stroke(0);
+      noStroke();
+      rect(HUDx + 2, HUDy + 2, 146 * pHealth/pHealthi, 46);
+    }
+    popMatrix();
+  }
+
+
+
+  void dcharge() {
+    pushMatrix();
+    translate(width * .86, height * .2);
+    rotate(radians(.5));
+
+    ////red bar//////
+    fill(255, 0, 0);
+    stroke(0);
+    strokeWeight(4);
+    rect(HUDx + 0, HUDy + 0, 140, 25);
+
+    ////cyan bar////
+    if (pCharge > 0) {
+      fill(46, 185, 252);
+      stroke(0);
+      noStroke();
+      rect(HUDx + 2, HUDy + 2, 136 * pCharge/pChargei, 21);
+    }
+
+    popMatrix();
+  }
+}
+
+class loadingScreen {
+
+  PImage monkey;
+  float mx = 200, my = 900;
+
+  loadingScreen() {
+    monkey = loadImage("monkey.png");
+  }
+
+
+  void display() {
+    background(0);
+    stroke(255);
+    text("Loading...", 6*width/8, 7*height/8);
+    image(monkey, mx, my, 400, 900);
+    if (my > height/2) {
+      my -= 5;
+    }
+    else {
+      my -= 15;
+    }
+    if (my < -1000) {
+      STATE = "game";
+    }
+  }
+}
+
+class titleScreen {
+  Menu title;
+  
+  titleScreen() {
+    title = new Menu(width/2 - width/8, height/2, width/4, height/4, 4, color(0, 0, 100), color(150), color(250,250,0));
+    title.options[0].label = "START";
+    title.options[1].label = "OPTIONS";
+    title.options[2].label = "CONTROLS";
+    title.options[3].label = "EXTRA";
   }
   
-  
+  void display() {
+    title.display();
+    
+    if (title.options[0].chosen == true) {
+      STATE = "starting";
+    }
+  }
+}
+class Starfield {
+
+  ArrayList particles = new ArrayList();
+  int x;
+  int y;
+  float dx;
+  float dy;
+  float e = .05;
+  int stars;
+
+  Starfield () {
+    particles.add(new Dot());
+    x = width/2;
+    y = height/2;
+  }
+
+  void display (int tstars) {
+    stars = tstars;
+    fill (255);
+    noStroke();
+    for (int i = 0; i < 100; i++) {
+      if (particles.size() < stars) {
+        particles.add(new Dot());
+      }
+    }
+    for (int i = 0; i < particles.size(); i++) {
+      Dot p = (Dot)particles.get(i);
+      p.display(100);
+      dx=x-p.x;
+      dy=y-p.y;
+      p.x=p.x-dx*e;
+      p.y=p.y-dy*e;
+      if (p.x > width || p.x < 0 || p.y > height || p.y < 0) {
+        particles.remove(i);
+      }
+    }
+  }
+}
+class Dot {
+  float x;
+  float y;
+  float d;
+  color o;
+
+  Dot () {
+    x=random(width/2-100, width/2+100);
+    y=random(height/2-100, height/2+100);
+    d=1;
+  }
+
+  void display (int to) {
+    o = to;
+    if (d < 10) {
+      d+=.05;
+    }
+    fill(255, 255, 255, o);
+    ellipse (x, y, d, d);
+  }
 }
 
 
