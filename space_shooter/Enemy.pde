@@ -150,9 +150,11 @@ class Enemy {
   void shoot() {
     if (millis() - t > 1000) {
       shoot = true;
-      shake = true;
       t = millis();
+      if (pShielded == false) {
+      shake = true;
       pHealth -= damage;
+      }
     }
     if (shoot == true) {
       if (millis() - t < 50) {
@@ -170,4 +172,27 @@ class Enemy {
     }
   }
 }
+
+
+
+
+
+
+
+/*
+Enemies/Behaviors:
+
+
+Lobster - shoot;
+Squids - crash;
+
+
+
+
+
+
+
+
+
+*/
 
