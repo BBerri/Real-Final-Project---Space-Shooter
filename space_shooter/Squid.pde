@@ -1,0 +1,6 @@
+class Squid extends Enemy {
+  
+  
+  
+  
+}

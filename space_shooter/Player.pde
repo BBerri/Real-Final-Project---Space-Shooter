@@ -2,7 +2,7 @@ class Player {
   float cw, ch, cCost;
   PImage HUD;
   int t, side;
-  boolean shoot, old, rechargingC, rechargingS;
+  boolean shoot, old;
   ArrayList bullets;
 
 
@@ -25,6 +25,16 @@ class Player {
 
 
   void display() {
+    
+    if (pHealth > pHealthi) {        //dont let health go above max
+        pHealth = pHealthi;
+      }
+      
+      if (pHealth < 0) {          //dont let it go negative
+        pHealth = 0;
+      }
+      
+      
     move();
 
     //////display bullets////////
@@ -70,12 +80,12 @@ class Player {
 
         //////left shot////
         if (side == 1) {
-          bullets.add(new Bullet("player", 2*width/8, height));
+          bullets.add(new Bullet("player", 2*width/8, height, 200));
         }
 
         /////right shot/////
         if (side == 2) {
-          bullets.add(new Bullet("player", 6*width/8, height));
+          bullets.add(new Bullet("player", 6*width/8, height, 200));
         }
 
         /////show shots/////
@@ -140,7 +150,7 @@ class Player {
         pShielded = false;
       }
     }
-    
+
     if (rechargingS == true) {
       pShields +=10;
       if (pShields >= pShieldsi) {
@@ -153,93 +163,93 @@ class Player {
 
 
 
-    void dshields() {
-      pushMatrix();
-      translate(width * .86, height * .25);
-      rotate(radians(.5));
+  void dshields() {
+    pushMatrix();
+    translate(width * .86, height * .25);
+    rotate(radians(.5));
 
-      ////red bar//////
-      fill(255, 0, 0);
+    ////red bar//////
+    fill(255, 0, 0);
+    stroke(0);
+    strokeWeight(4);
+    rect(HUDx + 0, HUDy + 0, 140, 25);
+
+    ////yellow bar////
+    if (pCharge > 0) {
+      fill(255, 255, 0);
       stroke(0);
-      strokeWeight(4);
-      rect(HUDx + 0, HUDy + 0, 140, 25);
-
-      ////yellow bar////
-      if (pCharge > 0) {
-        fill(255, 255, 0);
-        stroke(0);
-        noStroke();
-        rect(HUDx + 2, HUDy + 2, 136 * pShields/pShieldsi, 21);
-      }
-
-      popMatrix();
+      noStroke();
+      rect(HUDx + 2, HUDy + 2, 136 * pShields/pShieldsi, 21);
     }
 
+    popMatrix();
+  }
 
 
 
 
-    void dhealth() {
-      pushMatrix();
-      translate(width * .055, height * .2);
-      rotate(radians(-.5));
 
-      ////red bar//////
-      fill(255, 0, 0);
+  void dhealth() {
+    pushMatrix();
+    translate(width * .055, height * .2);
+    rotate(radians(-.5));
+
+    ////red bar//////
+    fill(255, 0, 0);
+    stroke(0);
+    strokeWeight(4);
+    rect(HUDx + 0, HUDy + 0, 150, 50);
+
+    ////green bar////
+    if (pHealth > 0) {
+      fill(0, 255, 0);
       stroke(0);
-      strokeWeight(4);
-      rect(HUDx + 0, HUDy + 0, 150, 50);
+      noStroke();
+      rect(HUDx + 2, HUDy + 2, 146 * pHealth/pHealthi, 46);
+    }
+    popMatrix();
+  }
 
-      ////green bar////
-      if (pHealth > 0) {
-        fill(0, 255, 0);
-        stroke(0);
-        noStroke();
-        rect(HUDx + 2, HUDy + 2, 146 * pHealth/pHealthi, 46);
-      }
-      popMatrix();
+
+
+  void dcharge() {
+    pushMatrix();
+    translate(width * .86, height * .15);
+    rotate(radians(.5));
+
+    ////red bar//////
+    fill(255, 0, 0);
+    stroke(0);
+    strokeWeight(4);
+    rect(HUDx + 0, HUDy + 0, 140, 25);
+
+    ////cyan bar////
+    if (pCharge > 0) {
+      fill(46, 185, 252);
+      stroke(0);
+      noStroke();
+      rect(HUDx + 2, HUDy + 2, 136 * pCharge/pChargei, 21);
     }
 
+    popMatrix();
+  }
 
 
-    void dcharge() {
-      pushMatrix();
-      translate(width * .86, height * .15);
-      rotate(radians(.5));
 
-      ////red bar//////
-      fill(255, 0, 0);
-      stroke(0);
-      strokeWeight(4);
-      rect(HUDx + 0, HUDy + 0, 140, 25);
 
-      ////cyan bar////
-      if (pCharge > 0) {
-        fill(46, 185, 252);
-        stroke(0);
-        noStroke();
-        rect(HUDx + 2, HUDy + 2, 136 * pCharge/pChargei, 21);
-      }
-
-      popMatrix();
+  void recharge() {          //when shot too many times, no charge left---slowly fill it
+    if (pCharge <= 0) {
+      rechargingC = true;
     }
 
+    if (rechargingC == true) {
+      pCharge+=3;
 
-
-
-    void recharge() {          //when shot too many times, no charge left---slowly fill it
-      if (pCharge <= 0) {
-        rechargingC = true;
-      }
-
-      if (rechargingC == true) {
-        pCharge+=3;
-
-        if (pCharge >= pChargei) {      //if refilled
-          pCharge = pChargei;
-          rechargingC = false;
-        }
+      if (pCharge >= pChargei) {      //if refilled
+        pCharge = pChargei;
+        rechargingC = false;
       }
     }
   }
+}
 

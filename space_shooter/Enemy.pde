@@ -1,24 +1,20 @@
 class Enemy {
   float x, y, w, h, rw, rh, xspeed, yspeed, zspeed, zacc, zacc2, damage;
-  boolean left, right, up, down, hit, shake, alive, targeted, canShoot, shoot;
+  boolean left, right, up, down, hit, shake, alive, targeted, shoot;
   PImage pic;
   int frames, health, t;
+  String behavior;
+  ArrayList bullets;
 
-  Enemy(PImage tpic, int thealth, float tw, float th, boolean tcanShoot, float tdamage) {
-    damage = tdamage;
-    health = thealth;
-    pic = tpic;
-    canShoot = tcanShoot;
-    rw = tw;
-    rh = th;
+  Enemy() {
     w = 0;
     h = 0;
-    x = random(width/2-100, width/2 + 100);
-    //y = random(height/2 - 50, height/2 + 50);
-    y = random(height/2 + 50, height/2 + 50);
-    zspeed = .001;
-    zacc = .0005;
-    zacc2 = .000008;
+    x = random(width/2-300, width/2 + 300);
+    y = random(height/2 + 100, height/2 + 100);
+    bullets = new ArrayList();
+    //zspeed = .001;
+    //zacc = .0005;
+    //zacc2 = .000008;
   }
 
   void display () {
@@ -34,7 +30,6 @@ class Enemy {
     translate(x, y);
     rotate(degrees(pdegrees));
     if (alive == true) {
-      fill(255);
       noStroke();
       imageMode(CENTER);
       image(pic, 0, 0, w, h);
@@ -91,14 +86,18 @@ class Enemy {
           w+= zspeed*2;
           h+= zspeed*2;
         }
-        if (h >= rh && w >= rw && canShoot == false) {      //if already close and doesnt shoot
+        if (h >= rh && w >= rw && behavior == "crash") {      //if already close and doesnt shoot
           y+=20;
           x +=xspeed*20;
         }
 
-        if (h >= rh && w >= rw && canShoot == true) {    //if close and does shoot
+        if (h >= rh && w >= rw && behavior == "laser") {    //if close and does shoot
           shoot();
-        }    
+        } 
+
+        if (h >= rh && w >= rw && behavior == "slime") {    //if close and does shoot
+          slime();
+        }       
 
         if (y > height) {
           shake = true;
@@ -152,8 +151,8 @@ class Enemy {
       shoot = true;
       t = millis();
       if (pShielded == false) {
-      shake = true;
-      pHealth -= damage;
+        shake = true;
+        pHealth -= damage;
       }
     }
     if (shoot == true) {
@@ -163,7 +162,7 @@ class Enemy {
 
         pushMatrix();
         translate(x, y);
-        line (0, 0, width/2, 9*width/10);
+        line (0, 0, 0, 4*height/10);
         popMatrix();
       }
       if (millis() - t > 50) {
@@ -171,28 +170,35 @@ class Enemy {
       }
     }
   }
+
+
+
+
+  void slime() {
+
+    for (int i=0; i<bullets.size(); i++) {        //display shots
+      Bullet shots = (Bullet) bullets.get(i);
+      shots.display();
+    }
+
+    /////show shots/////
+    for (int i=0; i<bullets.size(); i++) {
+      Bullet shots = (Bullet) bullets.get(i);
+      shots.update();
+      shots.shoot();
+    }
+
+    if (millis() - t > 1000) {
+      shoot = true;
+      t = millis();
+      if (pShielded == false) {
+        shake = true;
+        pHealth -= damage;
+      }
+    }
+    if (shoot == true) {
+      bullets.add(new Bullet("enemy", x, y, 10));
+      shoot = false;
+    }
+  }
 }
-
-
-
-
-
-
-
-/*
-Enemies/Behaviors:
-
-
-Lobster - shoot;
-Squids - crash;
-
-
-
-
-
-
-
-
-
-*/
-

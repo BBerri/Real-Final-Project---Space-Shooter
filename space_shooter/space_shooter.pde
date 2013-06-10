@@ -1,10 +1,10 @@
-PImage lobsterPic;
+
 
 ////////game variables/////////
 int iWidth = 1280;
 int iHeight = 720;
 int pw, ph;
-public int LEVEL;
+public int LEVEL = 1;
 public String STATE = "game";
 public boolean resize;
 public boolean leftClick, rightClick;
@@ -13,7 +13,7 @@ public boolean space = true;
 
 /////////player Variables/////////
 public String pDirection;
-public boolean pShielded, playerShot, pLeft, pRight;
+public boolean pShielded, playerShot, pLeft, pRight, rechargingC, rechargingS;
 public float HUDx, HUDy, pHealth, pHealthi, pdegrees, pCharge, pChargei, pShields, pShieldsi;
 
 
@@ -21,9 +21,8 @@ public float HUDx, HUDy, pHealth, pHealthi, pdegrees, pCharge, pChargei, pShield
 Menu menu1;
 titleScreen mainMenu;
 loadingScreen loading;
-Enemy lobster;
-Starfield stars;
-Player me;
+Level1 level1;
+
 
 
 
@@ -31,13 +30,9 @@ void setup() {
   BlackBox.init(this);
   size(iWidth, iHeight);
   frameRate(60);
-
   mainMenu = new titleScreen();
-  me = new Player(25, 25, 1000, 1000, 3000);
   loading = new loadingScreen();
-  lobsterPic = loadImage("lobster.png");
-  lobster = new Enemy(lobsterPic, 20, 100, 100, true, 100);
-  stars = new Starfield();
+  level1 = new Level1();
 }
 
 
@@ -55,20 +50,9 @@ void draw() {
   }
 
   if (STATE == "game") {
-
-    ///////stars//////
-    stars.display(100);
-
-    //////lobster//////
-    lobster.display();
-    lobster.approach();
-    lobster.hit();
-
-
-    ///player ship/////
-    me.shoot();
-    me.display();
-    me.recharge();
+    if (LEVEL == 1) {
+    level1.game();
+    }
   }
 
   if (STATE == "starting") {
