@@ -71,8 +71,9 @@ class Option {
     else {
       fill(textColor);        //not selected
     }
-    textSize(40);
-    text(label, x, y+(h*.9));          //text
+    //textSize(40);
+    textFont(font60, 60);
+    text(label, x + w * .2, y+(h*.6));          //text
   }
 
 

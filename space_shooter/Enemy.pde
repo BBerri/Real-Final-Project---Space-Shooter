@@ -1,17 +1,25 @@
 class Enemy {
   float x, y, w, h, rw, rh, xspeed, yspeed, zspeed, zacc, zacc2, damage;
-  boolean left, right, up, down, hit, shake, alive, targeted, shoot;
-  PImage pic;
+  boolean left, right, up, down, hit, shake, alive, targeted, shoot, attached, shooting, drop;
+  PImage pic, snail2;
   int frames, health, t;
   String behavior;
   ArrayList bullets;
+  PowerUp kit;
+
 
   Enemy() {
     w = 0;
     h = 0;
-    x = random(width/2-300, width/2 + 300);
-    y = random(height/2 + 100, height/2 + 100);
+    x = random(width/2-500, width/2 + 500);
+    if (space == true) {
+      y = random(height/2 - 200, height/2 + 200);
+    }
+    if (space == false) {
+      y = random(height/2 - 400, height/2 - 50);
+    }
     bullets = new ArrayList();
+    kit = new PowerUp("medkit", x, y, 400);
     //zspeed = .001;
     //zacc = .0005;
     //zacc2 = .000008;
@@ -26,14 +34,31 @@ class Enemy {
       alive = false;
     }
 
+    if (alive == false && drop == true) {
+      kit.display();
+      kit.activate();
+    }
+
     pushMatrix();
     translate(x, y);
     rotate(degrees(pdegrees));
     if (alive == true) {
       noStroke();
-      imageMode(CENTER);
-      image(pic, 0, 0, w, h);
-      imageMode(CORNER);
+      if (attached == false || shooting == false) {
+        imageMode(CENTER);
+        image(pic, 0, 0, w, h);        //not attached, no GIF
+        imageMode(CORNER);
+      }
+      if (attached == true) {
+        imageMode(CENTER);
+        image(squidGif, 0, 0, w, h);
+        imageMode(CORNER);
+      }
+      if (shooting == true) {
+        imageMode(CENTER);
+        image(snail2, 0, 0, w, h);
+        imageMode(CORNER);
+      }
     }
     popMatrix();
   }
@@ -59,18 +84,17 @@ class Enemy {
       }
 
       ///////////space enemy////////////
-      if (space==true) {
         if (right==true) {
-          xspeed = (dist(x, height/2, width/2, height/2))/1000;    //dist from x to width/2
+          xspeed = (dist(x, height/2, width/2, height/2))/2000;    //dist from x to width/2
         }
         if (left==true) {
-          xspeed = -(dist(x, height/2, width/2, height/2))/1000;    //dist from x to width/2
+          xspeed = -(dist(x, height/2, width/2, height/2))/2000;    //dist from x to width/2
         }
         if (up == true) {
-          yspeed = -(dist(width/2, y, width/2, height/2))/1000;    //dist from y to height/2
+          yspeed = -(dist(width/2, y, width/2, height/2))/2000;    //dist from y to height/2
         }
         if (down == true) {
-          yspeed = (dist(width/2, y, width/2, height/2))/1000;    //dist from y to height/2
+          yspeed = (dist(width/2, y, width/2, height/2))/2000;    //dist from y to height/2
         }
 
         x += xspeed;
@@ -98,13 +122,15 @@ class Enemy {
         if (h >= rh && w >= rw && behavior == "slime") {    //if close and does shoot
           slime();
         }       
+        if (h >= rh && w >= rw && behavior == "stick") {    //if close and does shoot
+          stick();
+        }     
 
         if (y > height) {
           shake = true;
         }
       }
     }
-  }
 
 
 
@@ -116,6 +142,7 @@ class Enemy {
       }
       if (frameCount - frames >= 40) {
         shake = false;
+        frames = frameCount;
       }
     }
     else {
@@ -128,6 +155,9 @@ class Enemy {
     ///////////check for mouse over enemy////////////
     if (mouseX > x-w/2 & mouseX < x+w/2 && mouseY > y-h/2 && mouseY < y+h/2) {
       targeted = true;
+    }
+    else {
+      targeted = false;
     }
 
     //////////////////lower health when hit///////////
@@ -162,7 +192,12 @@ class Enemy {
 
         pushMatrix();
         translate(x, y);
+        if (space == true) {
         line (0, 0, 0, 4*height/10);
+        }
+        if (space == false) {
+          line (0, 0, 0, height);
+        }
         popMatrix();
       }
       if (millis() - t > 50) {
@@ -200,5 +235,61 @@ class Enemy {
       bullets.add(new Bullet("enemy", x, y, 10));
       shoot = false;
     }
+    if (millis() - t < 300) {      //shooting if small time passed since shot
+      shooting = true;
+    }
+    else {
+      shooting = false;
+    }
+  }
+
+  void stick() {
+    if (w < rw * 1.5 && h < rh * 1.5) {
+      //      if (up == true && right == true) {
+      //        x += dist(x, 0, width/2, 0)/10;
+      //        y -= dist(0, y, 0, height/2)/10;
+      //      }
+      //      if (up == true && left == true) {
+      //        x -= dist(x, 0, width/2, 0)/10;
+      //        y -= dist(0, y, 0, height/2)/10;
+      //      }
+      //      if (down == true && left == true) {
+      //        x -= dist(x, 0, width/2, 0)/10;
+      //        y += dist(0, y, 0, height/2)/10;
+      //      }
+      //
+      //      if (down == true && right == true) {
+      //        x += dist(x, 0, width/2, 0)/10;
+      //        y += dist(0, y, 0, height/2)/10;
+      //      }
+
+
+      if (right == true) {
+        x += dist(x, 0, width/2, 0)/10;
+      }
+      if (left == true) {
+        x -= dist(x, 0, width/2, 0)/10;
+      }
+      if (down == true) {
+        y += dist(0, y, 0, height/2)/10;
+      }
+      if (up == true) {
+        y -= dist(0, y, 0, height/2)/10;
+      }
+
+
+      w += 3*zspeed;
+      h += 3*zspeed;
+    }
+
+    if (w < 6*rw && w > 1.5*rw && h > 1.5*rh && h < 6*rh) {
+      w += 9*zspeed;
+      h += 9*zspeed;
+    }
+    if (w >= 6*rw && h >= rh*6) {
+      shake = true;
+      attached = true;
+    }
   }
 }
+

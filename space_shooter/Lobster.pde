@@ -4,7 +4,7 @@ class Lobster extends Enemy {
     rw = 100;
     rh = 100;
     health = thealth;
-    damage = 100;
+    damage = 40;
     zspeed = .001;
     zacc = .0005;
     zacc2 = .000008;

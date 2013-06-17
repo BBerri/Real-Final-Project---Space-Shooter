@@ -1,8 +1,10 @@
 class Bullet {
   float r;
   String type;
-  float x, y, h, w, d, dist, maxDist, shrink, zspeed, bx, by;
+  float x, y, h, w, d, di, dist, maxDist, shrink, zspeed, bx, by;
   boolean shot;
+  PImage bulletG;
+  PImage bulletS;
 
   ////slime/////
   PImage slime;
@@ -20,6 +22,7 @@ class Bullet {
     h = 200;
     w = 200;
     d = td;
+    di = d;
 
     /////enemy/////
     bx = random(width/2 - 350, width/2 + 350);
@@ -27,6 +30,8 @@ class Bullet {
 
     ///slime///
     pick = int(random(1, 3));
+    bulletG = loadImage("bullet.png");
+    bulletS = loadImage("bulletS.png");
     slime = loadImage("slime.png");
     splat1 = loadImage("splat1.png");
     splat2 = loadImage("splat2.png");
@@ -36,19 +41,27 @@ class Bullet {
 
   void display() {
     ///////////////player bullet//////////////
-    if (type == "player") {
+    if (type == "playerS" || type == "playerG") {
       pushMatrix();
       translate(x, y);
 
       if (shot == true) {              //if shot, then move
         if (dist + d/2 < maxDist) {
           rotate(r);
-          fill(0, 255, 0);
+          fill(255, 50, 0);
           noStroke();
-          ellipse(dist, 0, d*1.5, d);
+          imageMode(CENTER);
+          if (type == "playerG") {
+            image(bulletG, dist, 0, d*1.5, d);
+          }
+          if (type == "playerS") {
+            ellipse(dist, 0, d*1.5, d);
+          }
+          //ellipse(dist, 0, d*1.5, d);
+          imageMode(CORNER);
           zspeed = maxDist/7;
           dist += zspeed;
-          d = 7 + 200 * ((maxDist-dist)/maxDist) * ((maxDist-dist)/maxDist);
+          d = 7 + di * ((maxDist-dist)/maxDist) * ((maxDist-dist)/maxDist);
         }
       }
       popMatrix();
@@ -78,7 +91,7 @@ class Bullet {
         imageMode(CENTER);
         tint(255, o);
         if (pick == 1) {
-        image(splat1, maxDist, 0, d, d);
+          image(splat1, maxDist, 0, d, d);
         }
         if (pick == 2) {
           image(splat2, maxDist, 0, d, d);
@@ -97,7 +110,7 @@ class Bullet {
 
   void update() {                              //update r value
 
-      if (type == "player") {
+      if (type == "playerS" || type == "playerG") {
       if (shot == false) {
         r = atan2(mouseY - y, mouseX - x);
         maxDist = dist(x, y, mouseX, mouseY);
