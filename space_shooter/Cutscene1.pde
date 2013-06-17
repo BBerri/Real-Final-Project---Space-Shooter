@@ -40,15 +40,15 @@ class Cutscene1 {
     text[1] = "Human research has expanded so rapidly that, people are able to genetically alter animals, in order to be more efficient.";
     text[2] = "With this technology people are able to do all, sorts of things.";
     text[3] = "You live on Earth.,You enjoy your calm and peacefull life.";
-    text[4] = "This is your best friend., You had both decided to go to the park today.";
+    text[4] = "This is your best friend., You both decided to go to the park today.";
     text[5] = "''What a nice day it is'' says your friend., ''I miss the days when technology had not consumed human life''";
     text[6] = "''Shall we collect butterflies?''";
     text[7] = "Then suddenly...,you hear a piercing noise...";
     text[8] = "''NOOOOOOOOO!'' yells your friend.";
-    text[9] = "''ITS TAKING ME AWAY! HELP!'' but you can do nothing...";
+    text[9] = "''ITS TAKING ME AWAY! HELP!'' but there is nothing you can do...";
     text[10] = "That was the last you saw of your friend";
     text[11] = "In order to save him, you become a Galactic Space Guy...";
-    text[12] = "You eventually find out that he was kidnapped by a failed experiment, Robo-Squid.";
+    text[12] = "You eventually find out that he was kidnapped by a failed experiment;, Robo-Squid.";
     text[13] = "You venture off into space with only vengence on your mind...";
     
     for (int i=0; i<imageCount; i++) {

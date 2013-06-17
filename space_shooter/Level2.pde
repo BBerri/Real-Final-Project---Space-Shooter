@@ -26,13 +26,13 @@ class Level2 {
     enemyCount = Lcount + SNcount + SQcount;
 
     for (int i=0; i<Lcount; i++) {     
-      lobsters[i] = new Lobster(6);
+      lobsters[i] = new Lobster(5);
     }
     for (int i=0; i<SNcount; i++) {
-      snails[i] = new Snail(6);
+      snails[i] = new Snail(5);
     }
     for (int i=0; i<SQcount; i++) {
-      squids[i] = new Squid(8);
+      squids[i] = new Squid(6);
     }
   }
 

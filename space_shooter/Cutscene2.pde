@@ -26,7 +26,7 @@ class Cutscene2 {
     files[3] = "1.png";
 
 
-    text[0] = "You have defeated General Cornucopio, surely this has weakened the enemy.";
+    text[0] = "You have defeated General Cornucopio, surely this has weakened the enemy forces.";
     text[1] = "You arrive on a strange, red planet.";
     text[2] = "You are unsure of what lies beyond the planet's red fog but you venture forth, in hope that you will find your friend.";
     text[3] = "You land on the planet, with vengance still on your mind.";

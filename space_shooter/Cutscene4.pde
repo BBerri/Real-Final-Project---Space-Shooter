@@ -40,11 +40,11 @@ class Cutscene4 {
     files[17] = "1.png";
 
 
-    text[0] = "You have searched the cave for days but you friend, is not in sight...";
+    text[0] = "You searched the cave for days but your friend, is not in sight...";
     text[1] = "Could this be the end...?";
     text[2] = "Is your friend lost forever...?";
     text[3] = "What hope is there...?";
-    text[4] = "Wait.";
+    text[4] = "Wait .";
     text[5] = "What is this?";
     text[6] = "An unground facility?, The door is open...";
     text[7] = "You decide to enter it.";
