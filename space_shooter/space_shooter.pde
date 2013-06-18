@@ -77,6 +77,7 @@ Cutscene5 scene5;
 
 
 
+
 void setup() {
   //////music/sounds///////
   minim = new Minim(this);
@@ -130,6 +131,7 @@ void setup() {
   fireball.play();
   soundWave = new Gif(this, "soundwave.gif");
   soundWave.play();
+
 }
 
 

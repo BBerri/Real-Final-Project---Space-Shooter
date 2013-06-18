@@ -19,8 +19,7 @@ class Level3 {
     lobsters = new Lobster[Lcount];
     snails = new Snail[SNcount];
     squids = new Squid[SQcount];
-    //enemyCount = Lcount + SNcount + SQcount;
-    enemyCount = 0;
+    enemyCount = Lcount + SNcount + SQcount;
 
     for (int i=0; i<Lcount; i++) {     
       lobsters[i] = new Lobster(4);
